@@ -43,12 +43,16 @@
       function handleAuthResult(authResult) {
         var authButton = document.getElementById('authorizeButton');
         var doitButton = document.getElementById('doitButton');
+        var listButton = document.getElementById('listButton');
         authButton.style.display = 'none';
         doitButton.style.display = 'none';
+        listButton.style.display = 'none';
         if (authResult && !authResult.error) {
           // Access token has been successfully retrieved, requests can be sent to the API.
+          listButton.style.display = 'block';
           doitButton.style.display = 'block';
           doitButton.onclick = uploadFile; 
+          listButton.onclick = loadDriveApi;
         } else {
           // No access token could be retrieved, show the button to start the authorization flow.
           authButton.style.display = 'block';
@@ -109,12 +113,51 @@
           console.log(arg);
         });
       }
+
+     function loadDriveApi() {
+        gapi.client.load('drive', 'v2', listFiles);
+      }
+      /**
+       * Print files.
+       */
+      function listFiles() {
+        var request = gapi.client.drive.files.list({
+            'maxResults': 10
+          });
+
+          request.execute(function(resp) {
+            appendPre('Files:');
+            var files = resp.items;
+            if (files && files.length > 0) {
+              for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                appendPre(file.title + ' (' + file.id + ')');
+              }
+            } else {
+              appendPre('No files found.');
+            }
+          });
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('output');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
     </script>
     <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
   </head>
   <body>
-    <input type="button" id="doitButton"      style="display: none" value="Do it"  onclick="alert('hiiii')" /> <br>
+    <input type="button" id="listButton"      style="display: none" value="Get file list"  onclick="alert('hiiii')" /> <br>
+    <input type="button" id="doitButton"      style="display: none" value="Insert file"  onclick="alert('hiiii')" /> <br>
     <input type="button" id="authorizeButton" style="display: none" value="Authorize" />
+    <pre id="output"></pre>
   </body>
 </html>
 
