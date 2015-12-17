@@ -21,6 +21,8 @@
     <script type="text/javascript">    
       var CLIENT_ID = '767687922405-9h0dbkelcnc361no1gfht0mb6ltvp5f6.apps.googleusercontent.com';
       var SCOPES = 'https://www.googleapis.com/auth/drive';
+
+      var IdRead;
       /**
        * Called when the client library is loaded to start the auth flow.
        */
@@ -44,15 +46,19 @@
         var authButton = document.getElementById('authorizeButton');
         var doitButton = document.getElementById('doitButton');
         var listButton = document.getElementById('listButton');
+        var readButton = document.getElementById('readButton');
         authButton.style.display = 'none';
         doitButton.style.display = 'none';
         listButton.style.display = 'none';
+        readButton.style.display = 'none';
         if (authResult && !authResult.error) {
           // Access token has been successfully retrieved, requests can be sent to the API.
           listButton.style.display = 'block';
           doitButton.style.display = 'block';
+          readButton.style.display = 'block';
           doitButton.onclick = uploadFile; 
           listButton.onclick = loadDriveApi;
+          readButton.onclick = downloadFile;
         } else {
           // No access token could be retrieved, show the button to start the authorization flow.
           authButton.style.display = 'block';
@@ -83,9 +89,11 @@
         var appState = {
           number: 12,
           text: 'hello'
-        };
-        var fileName = 'csusbdt-drive-example-app-state.txt';
+        }; 
+        //var appState = "Test data";
+        var fileName = 'csusbdt3.txt';
         var contentType = 'application/json';
+        //var contentType = 'text/plain';
         var metadata = {
           'title': fileName,
           'mimeType': contentType
@@ -130,6 +138,7 @@
             var files = resp.items;
             if (files && files.length > 0) {
               for (var i = 0; i < files.length; i++) {
+                IdRead = files[0].id;
                 var file = files[i];
                 appendPre(file.title + ' (' + file.id + ')');
               }
@@ -137,6 +146,23 @@
               appendPre('No files found.');
             }
           });
+      }
+
+      function downloadFile(evt) {
+        gapi.client.load('drive', 'v2', function() {
+          readFile(IdRead);
+        });
+      }
+
+      function readFile(id) {
+        var request = gapi.client.drive.files.get({
+          'fileId': id,
+          'alt': 'media'
+        });
+
+        request.execute(function(resp) {
+          console.log(resp);
+        });
       }
 
       /**
@@ -155,6 +181,7 @@
   </head>
   <body>
     <input type="button" id="listButton"      style="display: none" value="Get file list"  onclick="alert('hiiii')" /> <br>
+    <input type="button" id="readButton"      style="display: none" value="Read file"  onclick="alert('hiiii')" /> <br>
     <input type="button" id="doitButton"      style="display: none" value="Insert file"  onclick="alert('hiiii')" /> <br>
     <input type="button" id="authorizeButton" style="display: none" value="Authorize" />
     <pre id="output"></pre>
