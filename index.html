@@ -43,6 +43,8 @@
        * @param {Object} authResult Authorization result.
        */
       function handleAuthResult(authResult) {
+      	var accessToken = gapi.auth.getToken()
+      	console.log(accessToken);
         var authButton = document.getElementById('authorizeButton');
         var doitButton = document.getElementById('doitButton');
         var listButton = document.getElementById('listButton');
@@ -149,10 +151,21 @@
       }
 
       function downloadFile(evt) {
-        gapi.client.load('drive', 'v2', function() {
-          readFile(IdRead);
+
+      	var path = "/drive/v2/files/" + IdRead
+        var restRequest = gapi.client.request({
+          'path': path,
+          'method': 'GET',
+          'params' : {'alt': 'media'}
         });
+        restRequest.then(function(resp) {
+				  console.log(resp.result);
+				}, function(reason) {
+				  console.log('Error: ' + reason.result.error.message);
+				});
       }
+
+
 
       function readFile(id) {
         var request = gapi.client.drive.files.get({
