@@ -85,42 +85,23 @@
        * Insert new file.
        */
       function insertFile() {
-        const boundary = '-------314159265358979323846264';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
+ 
         var appState = {
           number: 12,
           text: 'hello'
         }; 
-        //var appState = "Test data";
-        var fileName = 'csusbdt3.txt';
-        var contentType = 'application/json';
-        //var contentType = 'text/plain';
-        var metadata = {
-          'title': fileName,
-          'mimeType': contentType
-        };
-        var base64Data = btoa(JSON.stringify(appState));
-        var multipartRequestBody =
-            delimiter +
-            'Content-Type: application/json\r\n\r\n' +
-            JSON.stringify(metadata) +
-            delimiter +
-            'Content-Type: ' + contentType + '\r\n' +
-            'Content-Transfer-Encoding: base64\r\n' +
-            '\r\n' +
-            base64Data +
-            close_delim;
+        
         var request = gapi.client.request({
             'path': '/upload/drive/v2/files',
             'method': 'POST',
-            'params': {'uploadType': 'multipart'},
+            'params': {'uploadType': 'media'},
             'headers': {
-              'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+              'Content-Type': 'application/json'
             },
-            'body': multipartRequestBody});
-        request.execute(function(arg) {
-          console.log(arg);
+            'body': JSON.stringify(appState)});
+
+        request.execute(function(res) {
+          console.log(res);
         });
       }
 
