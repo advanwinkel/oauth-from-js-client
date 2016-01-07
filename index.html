@@ -102,6 +102,15 @@
 
         request.execute(function(res) {
           console.log(res);
+          //Rename file 
+          var body = {'title': "test1.json"};
+				  var request = gapi.client.drive.files.patch({
+				    'fileId': res.id,
+				    'resource': body
+				  });
+				  request.execute(function(resp) {
+				    console.log('New Title: ' + resp.title);
+				  });
         });
       }
 
